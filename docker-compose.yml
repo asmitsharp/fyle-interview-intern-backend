@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app # Mount the current directory to /app in the container
+    environment:
+      - FLASK_APP=core/server.py
+    entrypoint: ["./entrypoint.sh"]
+    command: ["bash", "run.sh"]
+    ports:
+      - "5001:5000" # Map port 5000 on the host to port 5000 on the container
+    depends_on:
+      - db
+
+  db:
+    image: nouchka/sqlite3:latest
+    volumes:
+      - ./core/store.sqlite3:/app/store.sqlite3
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    command: ["pytest", "--cov"] # Run tests
+    depends_on:
+      - db

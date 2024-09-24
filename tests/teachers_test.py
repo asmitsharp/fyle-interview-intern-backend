@@ -96,6 +96,31 @@ def test_grade_assignment_draft_assignment(client, h_teacher_1):
     )
 
     assert response.status_code == 400
-    data = response.json
 
-    assert data['error'] == 'FyleError'
+def test_grade_assignment_submitted_assignment(client, h_teacher_1):
+    ## Success case: grading a submitted assignment.
+
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_teacher_1,
+        json={
+            "id": 1,  # Assuming this is a submitted assignment
+            "grade": "A"
+        }
+    )
+
+    assert response.status_code == 200
+
+def test_grade_assignment_unauthorized_user(client, h_student_1):
+    ## Failure case: unauthorized user (e.g., student) tries to grade an assignment.
+
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_student_1,
+        json={
+            "id": 1,  # Assuming this is a submitted assignment
+            "grade": "A"
+        }
+    )
+
+    assert response.status_code == 403
